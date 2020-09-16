@@ -149,4 +149,3 @@ st_write(unitgrids, "data/unitgrids.shp", delete_layer = TRUE)
 fwrite(stationSamples, file = "data/stationSamples.txt", sep = "\t")
 fwrite(indicators, file = "data/indicators.txt", sep = "\t")
 fwrite(indicatorUnits, file = "data/indicatorUnits.txt", sep = "\t")
-
