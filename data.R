@@ -108,7 +108,30 @@ rm(a,b,c)
 
 # StationSamples ---------------------------------------------------------------
 
+# Read stationSamples
 stationSamples <- fread(input = stationSamplesFile, sep = "\t", na.strings = "NULL", stringsAsFactors = FALSE, header = TRUE, check.names = TRUE)
+
+# Extract Stations by assigning a StationID by natural key
+#stationSamples[, StationID := .GRP, by = .(Cruise, Station, Year, Month, Day, Hour, Minute, Latitude..degrees_north., Longitude..degrees_east.)]
+#stationSamples[, .N, .(StationID, Cruise, Station, Year, Month, Day, Hour, Minute, Latitude..degrees_north., Longitude..degrees_east.)]
+#stationSamples[, .N, .(StationID.METAVAR.INDEXED_TEXT)]
+
+# Extract Samples by assigning a SampleID ny natural key
+#stationSamples[, SampleID := .GRP, by = .(Cruise, Station, Year, Month, Day, Hour, Minute, Latitude..degrees_north., Longitude..degrees_east., Depth..m.db..PRIMARYVAR.DOUBLE)]
+#stationSamples[, .N, .(StationID, Cruise, Station, Year, Month, Day, Hour, Minute, Latitude..degrees_north., Longitude..degrees_east., Depth..m.db..PRIMARYVAR.DOUBLE)]
+#stationSamples[, .N, .(SampleID.METAVAR.INDEXED_TEXT)]
+
+# Make stations spatial keeping original latitude/longitude
+stationSamples <- st_as_sf(stationSamples, coords = c("Longitude..degrees_east.", "Latitude..degrees_north."), remove = FALSE, crs = 4326)
+
+# Transform projection into ETRS_1989_LAEA
+stationSamples <- st_transform(stationSamples, crs = 3035)
+
+# Classify stations into unit grids
+stationSamples <- st_join(stationSamples, st_cast(unitgrids), join = st_intersects)
+
+# Remove spatial column
+stationSamples <- st_set_geometry(stationSamples, NULL)
 
 # Indicators -------------------------------------------------------------------
 
